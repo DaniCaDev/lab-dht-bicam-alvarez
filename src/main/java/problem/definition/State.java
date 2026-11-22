@@ -22,15 +22,15 @@ public class State implements Cloneable {
      * @param source estado que se copia
      */
     public State(State source) {
-        this(source.getCode());
-        typeGenerator = source.getTypeGenerator();
-        setEvaluation(source.getEvaluation());
-        number = source.getNumber();
+        this(source.code);
+        typeGenerator = source.typeGenerator;
+        evaluation = copyEvaluation(source.evaluation);
+        number = source.number;
     }
 
     /** @param code valores iniciales del código de la solución. */
     public State(ArrayList<Object> code) {
-        setCode(code);
+        this.code = new ArrayList<>(code);
     }
 
     /** Crea un estado con el código vacío, pendiente de evaluación. */
@@ -65,7 +65,11 @@ public class State implements Cloneable {
 
     /** @param evaluation valores de evaluación que se copiarán, o null. */
     public void setEvaluation(ArrayList<Double> evaluation) {
-        this.evaluation = evaluation == null ? null : new ArrayList<>(evaluation);
+        this.evaluation = copyEvaluation(evaluation);
+    }
+
+    private static ArrayList<Double> copyEvaluation(ArrayList<Double> evaluation) {
+        return evaluation == null ? null : new ArrayList<>(evaluation);
     }
 
     /** @return número asignado al estado. */
@@ -83,8 +87,8 @@ public class State implements Cloneable {
     public State clone() {
         try {
             State copy = (State) super.clone();
-            copy.setCode(code);
-            copy.setEvaluation(evaluation);
+            copy.code = new ArrayList<>(code);
+            copy.evaluation = copyEvaluation(evaluation);
             return copy;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);

@@ -27,7 +27,8 @@ import metaheuristics.generators.RandomSearch;
 
 public class Strategy {
 
-	private static Strategy strategy = null;
+	private static final Object STRATEGY_LOCK = new Object();
+	private static Strategy strategy;
 	private State bestState;
 	private Problem problem;
 	public SortedMap<GeneratorType, Generator> mapGenerators;
@@ -66,11 +67,14 @@ public class Strategy {
 		super();
 	}
 
-	public static synchronized Strategy getStrategy() {
-		if (strategy == null) {
-			strategy = new Strategy();
+	/** @return estrategia activa, creada al acceder por primera vez. */
+	public static Strategy getStrategy() {
+		synchronized (STRATEGY_LOCK) {
+			if (strategy == null) {
+				strategy = new Strategy();
+			}
+			return strategy;
 		}
-		return strategy;
 	}
 
 	public void executeStrategy (int countmaxIterations, int countIterationsChange, int operatornumber, GeneratorType generatorType) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException{
@@ -384,9 +388,12 @@ public class Strategy {
 		this.countCurrent = countCurrent;
 	}
 
-	public static synchronized void destroyExecute() {
-		strategy = null;
-		RandomSearch.listStateReference = null;
+	/** Libera la estrategia activa y las referencias compartidas de la búsqueda. */
+	public static void destroyExecute() {
+		synchronized (STRATEGY_LOCK) {
+			strategy = null;
+			RandomSearch.listStateReference = null;
+		}
 	}
 	
 	public double getThreshold() {
