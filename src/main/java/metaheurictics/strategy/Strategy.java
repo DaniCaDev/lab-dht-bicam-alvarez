@@ -126,7 +126,7 @@ public class Strategy {
 			initializeGenerators();
 			MultiGenerator.initializeGenerators();
 			MultiGenerator.listGeneratedPP.clear();
-			multiGenerator = (MultiGenerator)((MultiGenerator)generator).clone();
+			multiGenerator = (MultiGenerator) generator;
 		}
 		else initialize(); //crea el mapa de generadores
 		update(countCurrent);

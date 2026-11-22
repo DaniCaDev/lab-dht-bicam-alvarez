@@ -13,7 +13,7 @@ import metaheurictics.strategy.Strategy;
 import problem.definition.Problem.ProblemType;
 import problem.definition.State;
 
-public class MultiGenerator extends Generator {
+public class MultiGenerator extends Generator implements Cloneable {
 
 	private GeneratorType Generatortype;
 	private static Generator[] listGenerators = new Generator[GeneratorType.values().length];
@@ -363,8 +363,14 @@ public class MultiGenerator extends Generator {
 		}
 	}
 	
-	public Object clone(){
-		return this;
+	/** @return copia del generador que comparte los datos del portafolio activo. */
+	@Override
+	public MultiGenerator clone() {
+		try {
+			return (MultiGenerator) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	@Override
