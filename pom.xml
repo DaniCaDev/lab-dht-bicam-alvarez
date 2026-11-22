@@ -64,6 +64,34 @@
                         <phase>verify</phase>
                         <goals><goal>report</goal></goals>
                     </execution>
+                    <execution>
+                        <id>minimum-line-coverage</id>
+                        <phase>verify</phase>
+                        <goals><goal>check</goal></goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>CLASS</element>
+                                    <includes>
+                                        <include>problem.definition.Problem</include>
+                                        <include>problem.definition.State</include>
+                                        <include>factory_method.FactoryLoader</include>
+                                        <include>local_search.acceptation_type.AcceptBest</include>
+                                        <include>local_search.acceptation_type.Dominance</include>
+                                        <include>local_search.complement.StopExecute</include>
+                                        <include>evolutionary_algorithms.complement.OnePointCrossover</include>
+                                    </includes>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
