@@ -25,6 +25,7 @@ import metaheuristics.generators.MultiGenerator;
 import metaheuristics.generators.ParticleSwarmOptimization;
 import metaheuristics.generators.RandomSearch;
 
+/** Coordina la evaluación de candidatos y las iteraciones de un generador. */
 public class Strategy {
 
 	private static final Object STRATEGY_LOCK = new Object();
@@ -77,6 +78,14 @@ public class Strategy {
 		}
 	}
 
+	/**
+	 * Ejecuta una búsqueda con el problema y el criterio de parada configurados.
+	 *
+	 * @param countmaxIterations número máximo de iteraciones
+	 * @param countIterationsChange periodo entre cambios del problema
+	 * @param operatornumber parámetro de tamaño para el operador
+	 * @param generatorType generador que dirige la búsqueda
+	 */
 	public void executeStrategy (int countmaxIterations, int countIterationsChange, int operatornumber, GeneratorType generatorType) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException{
 		// si se quiere calcular el tiempo de ejecucion del un algoritmo
 		if(calculateTime == true){
@@ -299,6 +308,7 @@ public class Strategy {
 		return generator;
 	}
 
+	/** @return mejor solución evaluada hasta el momento. */
 	public State getBestState() {
 		return bestState;
 	}
@@ -318,6 +328,7 @@ public class Strategy {
 		this.countMax = countMax;
 	}
 
+	/** @param stopexecute criterio que decide cuándo termina la búsqueda. */
 	public void setStopexecute(StopExecute stopexecute) {
 		this.stopexecute = stopexecute;
 	}
@@ -330,10 +341,12 @@ public class Strategy {
 		this.updateparameter = updateparameter;
 	}
 
+	/** @return problema de optimización activo. */
 	public Problem getProblem() {
 		return problem;
 	}
 
+	/** @param problem problema que se empleará para evaluar los candidatos. */
 	public void setProblem(Problem problem) {
 		this.problem = problem;
 	}

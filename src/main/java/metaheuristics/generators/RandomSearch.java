@@ -16,6 +16,7 @@ import problem.definition.State;
 import factory_interface.IFFactoryAcceptCandidate;
 import factory_method.FactoryAcceptCandidate;
 
+/** Propone estados con el operador del problema y conserva el mejor aceptado. */
 public class RandomSearch extends Generator {
 
 	private CandidateValue candidatevalue;
