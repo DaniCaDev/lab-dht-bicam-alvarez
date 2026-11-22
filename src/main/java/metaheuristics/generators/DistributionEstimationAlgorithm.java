@@ -81,30 +81,7 @@ public class DistributionEstimationAlgorithm extends Generator {
 	
 	@Override
 	public State generate(Integer operatornumber) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException,	NoSuchMethodException {
-		//********************selection*****************************
-		//ProblemState candidate = new ProblemState();
-		/*State candidate = new State();//(State) Strategy.getStrategy().getProblem().getState().clone()
-		List<State> fathers = new ArrayList<State>();
-		fathers = getfathersList();
-		//**************************distribution***********************************
-		iffdistribution = new FactoryDistribution();
-    	Distribution distribution = iffdistribution.createDistribution(distributionType);
-    	List<Probability> probability = distribution.distribution(fathers);
-		
-    	//***************************muestreo*****************************************
-    	iffsampling = new FactorySampling();
-    	Sampling samplingG = iffsampling.createSampling(Samplingtype);
-    	List<State> ind = samplingG.sampling(probability, referenceList.size());
-    	sonList = ind;
-    	candidate = MaxValue(ind);
-       // this.candidate = candidate;
-    	return candidate;*/	
-    	
-    	//***************************version 1.0
-    	//ArrayList<State> listcandidate = new ArrayList<State>();//(State) Strategy.getStrategy().getProblem().getState().clone()
-		
-    	List<State> fathers = new ArrayList<State>();
-		fathers = getfathersList();
+		List<State> fathers = getfathersList();
 		iffsampling = new FactorySampling();
     	Sampling samplingG = iffsampling.createSampling(Samplingtype);
     	List<State> ind = samplingG.sampling(fathers, operatornumber);
