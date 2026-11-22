@@ -1,5 +1,7 @@
 package evolutionary_algorithms.complement;
 
+import biciam.util.OptimizationRandom;
+
 
 import metaheurictics.strategy.Strategy;
 import problem.definition.State;
@@ -8,8 +10,8 @@ public class TowPointsMutation extends Mutation {
 	/*@Override
 	public ProblemState mutation(SortedMap<Object, Object> newind, double PM) {
 		
-		int pos1 = (int) (Math.random() * (int)Problem.countvariable);
-		int pos2 = (int) (Math.random() * (int)Problem.countvariable);
+		int pos1 = (int) (OptimizationRandom.nextDouble() * (int)Problem.countvariable);
+		int pos2 = (int) (OptimizationRandom.nextDouble() * (int)Problem.countvariable);
 		
 		Object value1 = (Integer)(newind.get("x" + pos1));
 		Object value2 = (Integer)(newind.get("x" + pos2));

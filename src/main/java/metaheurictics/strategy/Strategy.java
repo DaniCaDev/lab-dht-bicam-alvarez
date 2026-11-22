@@ -66,7 +66,7 @@ public class Strategy {
 		super();
 	}
 
-	public static Strategy getStrategy() {
+	public static synchronized Strategy getStrategy() {
 		if (strategy == null) {
 			strategy = new Strategy();
 		}
@@ -384,7 +384,7 @@ public class Strategy {
 		this.countCurrent = countCurrent;
 	}
 
-	public static void destroyExecute() {
+	public static synchronized void destroyExecute() {
 		strategy = null;
 		RandomSearch.listStateReference = null;
 	}

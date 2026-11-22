@@ -1,5 +1,7 @@
 package metaheuristics.generators;
 
+import biciam.util.OptimizationRandom;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,8 +83,8 @@ public class GeneticAlgorithm extends Generator {
     	iffatherselection = new FactoryFatherSelection();
     	FatherSelection selection = iffatherselection.createSelectFather(selectionType);
     	List<State> fathers = selection.selection(refList, truncation);
-    	int pos1 = (int)(Math.random() * fathers.size());
-    	int pos2 = (int)(Math.random() * fathers.size());
+    	int pos1 = (int)(OptimizationRandom.nextDouble() * fathers.size());
+    	int pos2 = (int)(OptimizationRandom.nextDouble() * fathers.size());
     	
     	State auxState1 = (State) Strategy.getStrategy().getProblem().getState().getCopy();
     	auxState1.setCode(new ArrayList<Object>(fathers.get(pos1).getCode()));

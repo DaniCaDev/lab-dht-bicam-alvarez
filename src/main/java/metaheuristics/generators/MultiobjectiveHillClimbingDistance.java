@@ -59,7 +59,7 @@ public class MultiobjectiveHillClimbingDistance extends Generator{
 		//Agregando la primera solución a la lista de soluciones no dominadas
 		if(Strategy.getStrategy().listRefPoblacFinal.size() == 0){
 			Strategy.getStrategy().listRefPoblacFinal.add(stateReferenceHC.clone());
-			distanceSolution.add(new Double(0));
+			distanceSolution.add(0.0);
 		}
 		ifacceptCandidate = new FactoryAcceptCandidate();
 		AcceptableCandidate candidate = ifacceptCandidate.createAcceptCandidate(typeAcceptation);

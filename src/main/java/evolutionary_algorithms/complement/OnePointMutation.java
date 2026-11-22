@@ -1,5 +1,7 @@
 package evolutionary_algorithms.complement;
 
+import biciam.util.OptimizationRandom;
+
 
 import metaheurictics.strategy.Strategy;
 import problem.definition.State;
@@ -8,7 +10,7 @@ public class OnePointMutation extends Mutation {
 
 	@Override
 	public State mutation(State state, double PM) {
-		double probM = (double)(Math.random() * (double)(1));
+		double probM = (double)(OptimizationRandom.nextDouble() * (double)(1));
 		if(PM >= probM)
 		{
 			Object key = Strategy.getStrategy().getProblem().getCodification().getAleatoryKey();

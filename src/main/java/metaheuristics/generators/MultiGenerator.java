@@ -1,5 +1,7 @@
 package metaheuristics.generators;
 
+import biciam.util.OptimizationRandom;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,8 +131,8 @@ public class MultiGenerator extends Generator {
 				stateCandidate.setNumber(j);
 				stateCandidate.setTypeGenerator(generator.getType());
 				listGeneratedPP.add(stateCandidate);
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (ReflectiveOperationException e) {
+				throw new IllegalStateException("Error al preparar el portafolio de generadores", e);
 			} 
 			j++;
 		}
@@ -284,7 +286,7 @@ public class MultiGenerator extends Generator {
 			limitRoulette.setGenerator(listGenerators[i]);
 			listLimit.add(limitRoulette);
 		}
-		float numbAleatory = (float) (Math.random() * (double)(1));
+		float numbAleatory = (float) (OptimizationRandom.nextDouble() * (double)(1));
 		boolean find = false;
 		int i = 0;
 		while ((find == false) && (i < listLimit.size())){

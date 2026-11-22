@@ -4,6 +4,8 @@
 
 package local_search.acceptation_type;
 
+import biciam.util.OptimizationRandom;
+
 import java.lang.reflect.InvocationTargetException;
 
 import metaheurictics.strategy.Strategy;
@@ -20,7 +22,7 @@ public class AcceptNotBadT extends AcceptableCandidate{
 		Problem problem = Strategy.getStrategy().getProblem();
 		if (problem.getTypeProblem().equals(ProblemType.Maximizar)) {
 			double result = (stateCandidate.getEvaluation().get(0) - stateCurrent.getEvaluation().get(0)) / SimulatedAnnealing.tinitial;
-			double probaleatory = Math.random();
+			double probaleatory = OptimizationRandom.nextDouble();
 			double exp = Math.exp(result);
 			if ((stateCandidate.getEvaluation().get(0) >= stateCurrent.getEvaluation().get(0))
 					|| (probaleatory < exp))
@@ -30,7 +32,7 @@ public class AcceptNotBadT extends AcceptableCandidate{
 		} else {
 			double result_min = (stateCandidate.getEvaluation().get(0) - stateCurrent.getEvaluation().get(0)) / SimulatedAnnealing.tinitial;
 			if ((stateCandidate.getEvaluation().get(0) <= stateCurrent.getEvaluation().get(0))
-					|| (Math.random() < Math.exp(result_min)))
+					|| (OptimizationRandom.nextDouble() < Math.exp(result_min)))
 				accept = true;
 			else
 				accept = false;

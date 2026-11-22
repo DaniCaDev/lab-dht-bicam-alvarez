@@ -4,6 +4,8 @@
 
 package local_search.candidate_type;
 
+import biciam.util.OptimizationRandom;
+
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -30,7 +32,7 @@ public class GreaterCandidate extends SearchCandidate {
 				counter = 0;
 			}
 			if(stateGreater == null){
-				int pos = (int)(Math.random() * (double)(listNeighborhood.size() - 1));
+				int pos = (int)(OptimizationRandom.nextDouble() * (double)(listNeighborhood.size() - 1));
 				stateGreater = listNeighborhood.get(pos);
 			}
 		}
