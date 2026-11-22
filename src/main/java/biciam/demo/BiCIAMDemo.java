@@ -73,7 +73,9 @@ public final class BiCIAMDemo {
 
         @Override
         public List<State> generateRandomState(Integer count) {
-            return List.of(new State(new ArrayList<>(List.of(next++))));
+            State sample = new State(new ArrayList<>(List.of(next)));
+            next++;
+            return List.of(sample);
         }
     }
 }
