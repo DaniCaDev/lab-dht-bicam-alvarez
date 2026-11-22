@@ -14,7 +14,7 @@ public class RandomCandidate extends SearchCandidate {
 
 	@Override
 	public State stateSearch(List<State> listNeighborhood) {
-		int pos = (int)(OptimizationRandom.nextDouble() * (double)(listNeighborhood.size() - 1));
+		int pos = OptimizationRandom.nextInt(listNeighborhood.size());
 		State stateAleatory = listNeighborhood.get(pos);
 		return stateAleatory;
 	}

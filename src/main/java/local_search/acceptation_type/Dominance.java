@@ -1,129 +1,63 @@
 package local_search.acceptation_type;
 
 import java.util.List;
-
 import metaheurictics.strategy.Strategy;
 import metaheuristics.generators.GeneratorType;
 import metaheuristics.generators.MultiobjectiveHillClimbingDistance;
 import problem.definition.Problem.ProblemType;
 import problem.definition.State;
 
+/** Compara soluciones y mantiene el conjunto de estados no dominados. */
 public class Dominance {
 
-	//---------------------------------Métodos que se utilizan en los algoritmos multiobjetivo-------------------------------------------------------//
-	//Función que determina si la solución X domina a alguna de las soluciones no dominadas de una lista
-	//Devuelve la lista actualizada y true si fue adicionada a la lista o false de lo contrario
-	public boolean ListDominance(State solutionX, List<State> list){
-		boolean domain = false;
-		for (int i = 0; i < list.size() && domain == false; i++) {
-			//Si la solución X domina a la solución de la lista
-			if(dominance(solutionX, list.get(i)) == true){
-				//Se elimina el elemento de la lista
-				list.remove(i);
-				if (i!=0) {
-					i--;	
-				}
-				if (Strategy.getStrategy().generator.getType().equals(GeneratorType.MultiobjectiveHillClimbingDistance)&&list.size()!=0) {
-					MultiobjectiveHillClimbingDistance.DistanceCalculateAdd(list);
-				}
-			}
-			if (list.size()>0) {
-				if(dominance(list.get(i), solutionX) == true){
-					domain = true;
-				}
-			}
+    /**
+     * Incorpora un candidato al frente de Pareto si aporta un código nuevo y no está dominado.
+     *
+     * @param solutionX estado candidato
+     * @param list frente de Pareto que se actualiza
+     * @return true si se incorpora el candidato
+     */
+    public boolean ListDominance(State solutionX, List<State> list) {
+        for (State member : list) {
+            if (dominance(member, solutionX) || solutionX.Comparator(member)) {
+                return false;
+            }
+        }
+        list.removeIf(member -> dominance(solutionX, member));
+        list.add(solutionX.clone());
 
-		}
-		//Si la solución X no fue dominada
-		if(domain == false){
-			//Comprobando que la solución no exista
-			boolean found = false;
-			for (int k = 0; k < list.size() && found == false; k++) {
-				State element = list.get(k);
-				found = solutionX.Comparator(element);
-			}
-			//Si la solución no existe
-			if(found == false){
-				//Se guarda la solución candidata en la lista de soluciones óptimas de Pareto
-				list.add(solutionX.clone());
-				if (Strategy.getStrategy().generator.getType().equals(GeneratorType.MultiobjectiveHillClimbingDistance)) {
-					MultiobjectiveHillClimbingDistance.DistanceCalculateAdd(list);
-				}
-				return true;
-			}
-		}
-		return false;
+        Strategy strategy = Strategy.getStrategy();
+        if (strategy.generator != null
+                && strategy.generator.getType() == GeneratorType.MultiobjectiveHillClimbingDistance) {
+            MultiobjectiveHillClimbingDistance.DistanceCalculateAdd(list);
+        }
+        return true;
+    }
 
-		/*boolean domain = false;
-		List<State> deletedSolution = new ArrayList<State>();
-		for (int i = 0; i < list.size() && domain == false; i++) {
-			State element = list.get(i);
-			//Si la solución X domina a la solución de la lista
-			if(dominance(solutionX, element) == true){
-				//Se elimina el elemento de la lista
-				deletedSolution.add(element);
-			}
-			if(dominance(element, solutionX) == true){
-				domain = true;
-			}
-		}
-		//Si la solución X no fue dominada
-		if(domain == false){
-			//Comprobando que la solución no exista
-			boolean found = false;
-			for (int k = 0; k < list.size() && found == false; k++) {
-				State element = list.get(k);
-				found = solutionX.Comparator(element);
-			}
-			//Si la solución no existe
-			if(found == false){
+    /**
+     * Comprueba si el primer estado mejora algún objetivo sin empeorar los demás.
+     *
+     * @param solutionX estado que se comprueba
+     * @param solutionY estado de referencia
+     * @return true si el primer estado domina al segundo
+     */
+    public boolean dominance(State solutionX, State solutionY) {
+        boolean maximize = Strategy.getStrategy().getProblem().getTypeProblem() == ProblemType.Maximizar;
+        List<Double> left = solutionX.getEvaluation();
+        List<Double> right = solutionY.getEvaluation();
+        if (left.size() != right.size()) {
+            throw new IllegalArgumentException("Los estados deben tener la misma cantidad de objetivos");
+        }
 
-				//Se eliminan de la lista de soluciones optimas de pareto aquellas que fueron dominadas por la solución candidata
-				list.removeAll(deletedSolution);
-				//Se guarda la solución candidata en la lista de soluciones óptimas de Pareto
-				list.add(solutionX.clone());
-				if(Strategy.getStrategy().getProblem()!= null){
-					Strategy.getStrategy().listRefPoblacFinal = list;
-				}
-				return true;
-			}
-		}
-
-		return false;*/
-	}
-
-
-	//Función que devuelve true si solutionX domina a solutionY
-	public boolean dominance(State solutionX,  State solutionY)	{
-		boolean dominance = false;
-		int countBest = 0;
-		int countEquals = 0;
-		//Si solutionX domina a solutionY
-		if(Strategy.getStrategy().getProblem().getTypeProblem().equals(ProblemType.Maximizar)) {
-			//Recorriendo las evaluaciones de las funciones objetivo
-			for (int i = 0; i < solutionX.getEvaluation().size(); i++) {
-				if(solutionX.getEvaluation().get(i).floatValue() > solutionY.getEvaluation().get(i).floatValue()){
-					countBest++;
-				}
-				if(solutionX.getEvaluation().get(i).floatValue() == solutionY.getEvaluation().get(i).floatValue()){
-					countEquals++;
-				}	
-			}
-		}
-		else{
-			//Recorriendo las evaluaciones de las funciones objetivo
-			for (int i = 0; i < solutionX.getEvaluation().size(); i++) {
-				if(solutionX.getEvaluation().get(i).floatValue() < solutionY.getEvaluation().get(i).floatValue()){
-					countBest++;
-				}
-				if(solutionX.getEvaluation().get(i).floatValue() == solutionY.getEvaluation().get(i).floatValue()){
-					countEquals++;
-				}	
-			}
-		}
-		if((countBest >= 1) && (countEquals + countBest == solutionX.getEvaluation().size())) {
-			dominance = true;
-		}
-		return dominance;
-	} 
+        boolean improved = false;
+        for (int i = 0; i < left.size(); i++) {
+            double first = left.get(i);
+            double second = right.get(i);
+            if (Double.isNaN(first) || Double.isNaN(second) || (maximize ? first < second : first > second)) {
+                return false;
+            }
+            improved |= maximize ? first > second : first < second;
+        }
+        return improved;
+    }
 }
