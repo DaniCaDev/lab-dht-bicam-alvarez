@@ -20,13 +20,7 @@ import factory_method.FactoryCandidate;
 
 public class CandidateValue {
 
-	@SuppressWarnings("unused")
-	private StrategyType strategy;
-
 	private IFFactoryCandidate ifFactory;
-
-	@SuppressWarnings("unused")
-	private CandidateType typecand;
 
 	private TabuSolutions tabusolution;
 
@@ -37,9 +31,7 @@ public class CandidateValue {
 	public CandidateValue(StrategyType strategy, IFFactoryCandidate ifFactory, CandidateType typecand, 
 			TabuSolutions tabusolution, SearchCandidate searchcandidate) { //, Strategy executegenerator
 		super();
-		this.strategy = strategy;
 		this.ifFactory = ifFactory;
-		this.typecand = typecand;
 		this.tabusolution = tabusolution;
 		this.searchcandidate = searchcandidate;
 	}
@@ -51,12 +43,11 @@ public class CandidateValue {
 	}
 
 	public State stateCandidate(State stateCurrent, CandidateType typeCandidate, StrategyType strategy, Integer operatornumber, List<State> neighborhood) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException{
-		//Problem problem = ExecuteGenerator.getExecuteGenerator().getProblem();
-		State stateCandidate;
-		List<State> auxList = new ArrayList<State>();
-		for (int i = 0; i < neighborhood.size(); i++) {
-			auxList.add(neighborhood.get(i));
+		if (neighborhood == null || neighborhood.isEmpty()) {
+			throw new IllegalArgumentException("El operador debe proporcionar al menos un candidato");
 		}
+		State stateCandidate;
+		List<State> auxList = new ArrayList<>(neighborhood);
 		this.tabusolution = new TabuSolutions();
 		if (strategy.equals(StrategyType.TABU)) {
 			try {

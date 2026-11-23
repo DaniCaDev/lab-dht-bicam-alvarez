@@ -14,6 +14,7 @@ import local_search.candidate_type.CandidateValue;
 import local_search.complement.StrategyType;
 import metaheurictics.strategy.Strategy;
 
+import problem.definition.Problem;
 import problem.definition.State;
 import problem.definition.Problem.ProblemType;
 
@@ -63,19 +64,21 @@ public class HillClimbingRestart extends Generator{
 
 
 	public State generate (Integer operatornumber) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		//ArrayList<State>list=new ArrayList<State>();
-		State statecandidate = new State();
-		if(count == Strategy.getStrategy().getCountCurrent()){
-			State stateR = new State(stateReferenceHC);
-			listRef.add(stateR);
-			stateReferenceHC = Strategy.getStrategy().getProblem().getOperator().generateRandomState(1).get(0);
-			Strategy.getStrategy().getProblem().Evaluate(stateReferenceHC);
+		Strategy activeStrategy = Strategy.getStrategy();
+		Problem problem = activeStrategy.getProblem();
+		if (count == activeStrategy.getCountCurrent()) {
+			List<State> restartStates = problem.getOperator().generateRandomState(1);
+			if (restartStates == null || restartStates.isEmpty() || restartStates.get(0) == null) {
+				throw new IllegalStateException("El operador no generó un estado para el reinicio");
+			}
+			State restartState = restartStates.get(0);
+			problem.Evaluate(restartState);
+			listRef.add(new State(stateReferenceHC));
+			stateReferenceHC = restartState;
 			count = count + countCurrent;
 		}
-		List<State> neighborhood = Strategy.getStrategy().getProblem().getOperator().generatedNewState(stateReferenceHC, operatornumber);
-		statecandidate = candidatevalue.stateCandidate(stateReferenceHC, typeCandidate, strategy, operatornumber, neighborhood);
-		//list.add(statecandidate);
-		return statecandidate;
+		List<State> neighborhood = problem.getOperator().generatedNewState(stateReferenceHC, operatornumber);
+		return candidatevalue.stateCandidate(stateReferenceHC, typeCandidate, strategy, operatornumber, neighborhood);
 	}
 
 	@Override

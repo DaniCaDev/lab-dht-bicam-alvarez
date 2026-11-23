@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import factory_interface.IFFactoryGenerator;
 import factory_method.FactoryGenerator;
@@ -36,10 +37,11 @@ public class Strategy {
 	private StopExecute stopexecute;
 	private UpdateParameter updateparameter;
 	private IFFactoryGenerator ifFactoryGenerator;
-	private int countCurrent;
-	private int countMax;
+	private final Object iterationLock = new Object();
+	private volatile int countCurrent;
+	private volatile int countMax;
 	public Generator generator;
-	public double threshold;
+	public volatile double threshold;
 
 	public ArrayList<State> listStates; //lista de todos los estados generados en cada iteracion
 	public ArrayList<State> listBest; //lista de la mejor solucion en cada iteracion
@@ -58,10 +60,10 @@ public class Strategy {
 	public static long timeExecute;
 	
 	public float[] listOfflineError = new float[100]; // para almacenar la metrica offlinePerformance
-	public int countPeriodChange = 0; // cantidad de iteeraciones antes de un cambio
+	public volatile int countPeriodChange = 0; // cantidad de iteeraciones antes de un cambio
 	public int countChange = 0;
 	private int countPeriodo; // contador para saber cada cuantas iteraciones tiene que guardar en la lista listCountBetterGender de cada generador
-	private int periodo; //contador para controlar el periodo que esta guardando
+	private final AtomicInteger periodo = new AtomicInteger(); //contador para controlar el periodo que esta guardando
 
 
 	private Strategy(){
@@ -115,7 +117,7 @@ public class Strategy {
 		generator = newGenerator(generatorType);
 		generator.setInitialReference(initialState);
 		bestState = initialState;
-		countCurrent = 0;
+		setCountCurrent(0);
 		listRefPoblacFinal = new ArrayList<State>();
 		MultiGenerator multiGenerator = null;
 		countPeriodChange = countIterationsChange;
@@ -151,7 +153,7 @@ public class Strategy {
 					if(countPeriodo == countCurrent){
 						updateCountGender();
 						countPeriodo = countPeriodo + countPeriodChange / 10;
-						periodo = 0;
+						periodo.set(0);
 						MultiGenerator.activeGenerator.countBetterGender = 0;
 					}
 					updateWeight();//actualizar el peso de los generadores si se reinician cuando ocurre un cambio
@@ -198,7 +200,7 @@ public class Strategy {
 					if(countPeriodo == countCurrent){
 						updateCountGender();
 						countPeriodo = countPeriodo + countPeriodChange / 10;
-						periodo++;
+						periodo.incrementAndGet();
 						MultiGenerator.activeGenerator.countBetterGender = 0;
 					}
 					stateCandidate = multiGenerator.generate(operatornumber);
@@ -223,7 +225,9 @@ public class Strategy {
 						notDominated.ListDominance(stateCandidate, listRefPoblacFinal);
 					}
 				}
-				countCurrent = UpdateParameter.updateParameter(countCurrent);
+				synchronized (iterationLock) {
+					countCurrent = UpdateParameter.updateParameter(countCurrent);
+				}
 				//actualizar el mejor estado encontrado solo tiene sentido para algoritmos monoobjetivos
 				if ((getProblem().getTypeProblem().equals(ProblemType.Maximizar)) && bestState.getEvaluation().get(bestState.getEvaluation().size() - 1) < stateCandidate.getEvaluation().get(bestState.getEvaluation().size() - 1)) {
 					bestState = stateCandidate;
@@ -265,8 +269,9 @@ public class Strategy {
 				!MultiGenerator.getListGenerators()[i].getType().equals(GeneratorType.MultiobjectiveHillClimbingDistance) && !MultiGenerator.getListGenerators()[i].getType().equals(GeneratorType.MultiobjectiveHillClimbingRestart) &&
 				!MultiGenerator.getListGenerators()[i].getType().equals(GeneratorType.MultiobjectiveStochasticHillClimbing) && !MultiGenerator.getListGenerators()[i].getType().equals(GeneratorType.MultiobjectiveTabuSearch) && 
 				!MultiGenerator.getListGenerators()[i].getType().equals(GeneratorType.ParticleSwarmOptimization)*/
-				MultiGenerator.getListGenerators()[i].getListCountGender()[periodo] = MultiGenerator.getListGenerators()[i].countGender + MultiGenerator.getListGenerators()[i].getListCountGender()[periodo];
-				MultiGenerator.getListGenerators()[i].getListCountBetterGender()[periodo] = MultiGenerator.getListGenerators()[i].countBetterGender + MultiGenerator.getListGenerators()[i].getListCountBetterGender()[periodo];
+				int currentPeriod = periodo.get();
+				MultiGenerator.getListGenerators()[i].getListCountGender()[currentPeriod] += MultiGenerator.getListGenerators()[i].countGender;
+				MultiGenerator.getListGenerators()[i].getListCountBetterGender()[currentPeriod] += MultiGenerator.getListGenerators()[i].countBetterGender;
 				MultiGenerator.getListGenerators()[i].countGender = 0;
 				MultiGenerator.getListGenerators()[i].countBetterGender = 0;
 			}
@@ -398,7 +403,9 @@ public class Strategy {
 	}
 
 	public void setCountCurrent(int countCurrent) {
-		this.countCurrent = countCurrent;
+		synchronized (iterationLock) {
+			this.countCurrent = countCurrent;
+		}
 	}
 
 	/** Libera la estrategia activa y las referencias compartidas de la búsqueda. */

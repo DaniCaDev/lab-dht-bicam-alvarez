@@ -67,44 +67,50 @@ public class DistributionEstimationAlgorithm extends Generator {
 		listCountGender[0] = 0;
 	}
 	
-	public State MaxValue (List<State> listInd){
-		State state = new State(listInd.get(0));
-		double max = state.getEvaluation().get(0);
+	public State MaxValue(List<State> listInd) {
+		if (listInd == null || listInd.isEmpty()) {
+			throw new IllegalArgumentException("Se requiere al menos un estado evaluado");
+		}
+		State bestState = listInd.get(0);
+		double max = objectiveValue(bestState);
 		for (int i = 1; i < listInd.size(); i++) {
-			if(listInd.get(i).getEvaluation().get(0) > max){
-				max = listInd.get(i).getEvaluation().get(0);
-				state = new State(listInd.get(i));
+			State candidate = listInd.get(i);
+			double evaluation = objectiveValue(candidate);
+			if (evaluation > max) {
+				max = evaluation;
+				bestState = candidate;
 			}
 		}
-		return state;
+		return new State(bestState);
+	}
+
+	private static double objectiveValue(State state) {
+		List<Double> evaluation = state == null ? null : state.getEvaluation();
+		if (evaluation == null || evaluation.isEmpty() || evaluation.get(0) == null) {
+			throw new IllegalArgumentException("El estado debe tener evaluado el primer objetivo");
+		}
+		return evaluation.get(0);
 	}
 	
 	@Override
 	public State generate(Integer operatornumber) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException,	NoSuchMethodException {
 		List<State> fathers = getfathersList();
 		iffsampling = new FactorySampling();
-    	Sampling samplingG = iffsampling.createSampling(Samplingtype);
-    	List<State> ind = samplingG.sampling(fathers, operatornumber);
-    	State candidate = null;
-    	if(ind.size() > 1){
-    		for (int i = 0; i < ind.size(); i++) {
-    			double evaluation = Strategy.getStrategy().getProblem().getFunction().get(0).Evaluation(ind.get(i));
-    			ArrayList<Double> listEval = new ArrayList<Double>();
-    			listEval.add(evaluation);
-    			ind.get(0).setEvaluation(listEval);
-    		}
-    		candidate = MaxValue(ind);
-    	}
-    	else{
-    		candidate = ind.get(0);
-    	}
-//    	sonList = ind;
-    	//listcandidate.add(candidate);
-       // this.candidate = candidate;
-    	return candidate;
-    	
-    }
-    		
+		Sampling sampling = iffsampling.createSampling(Samplingtype);
+		List<State> individuals = sampling.sampling(fathers, operatornumber);
+		if (individuals == null || individuals.isEmpty()) {
+			throw new IllegalStateException("El muestreo no generó ningún candidato");
+		}
+		if (individuals.size() == 1) {
+			return individuals.get(0);
+		}
+		for (State individual : individuals) {
+			double evaluation = Strategy.getStrategy().getProblem().getFunction().get(0).Evaluation(individual);
+			individual.setEvaluation(new ArrayList<>(List.of(evaluation)));
+		}
+		return MaxValue(individuals);
+	}
+
 	@Override
 	public State getReference() {
 		stateReferenceDA = referenceList.get(0);
